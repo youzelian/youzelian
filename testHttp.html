@@ -1,205 +1,212 @@
-
 <!doctype html>
-<html  lang="zh">
- <head>
+<html lang="zh">
+
+<head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
 
   <title>本例作为Web APP开发对互联网络的HTPP协议应用范例！</title>
-  
-   <style>
+
+  <style>
     * {
-      padding: 0 ;
-	    margin: 0 ;
+      padding: 0;
+      margin: 0;
     }
-     body {
+
+    body {
       margin: 0;
       padding: 0;
-      font-family:Arial, Sans-Serif;
-      background-color: black ; 
+      font-family: Arial, Sans-Serif;
+      background-color: black;
     }
 
-     #app {
-      position: relative ;
-     }
-	
-   
-
-     img#bgimage {
-      position: absolute ;
-	    opacity: 0.3 ;
-        
+    #app {
+      position: relative;
     }
 
-	ul{color:rgb(100,250,10);
-	  font-size:1.5em;
-	  font-family:"Consolas"}
-	ul>li{
-	  text-indent: 0.5em ;
-	  margin-left: 3em ;
-    line-height: 1.5em;
-	}
-	</style>
-	<script type="text/javascript">
-	<!--
-		/*** 本程序为testHttp ，将访问与本文件同级，即txt文件夹下的文本文件
-		 通过建立httpLoader模型，学习利用window的XMLHttpRequest对象，实现任意文本文件的访问
-		 本代码本质上利用http协议进行服务器通信，因此运行环境须有客户端和服务器支撑，不能在本地运行，没有服务器支撑的可以使用本地操作系统虚拟的HTTP服务器。
-		 ***/
-     var httpLoader = { 
-		  textContent: '' ,
-      textLines: [] ,
-          request: function( url ){
-			         this.textContent = '' ; 
-         // 每次开始http请求前，必须将本对象上次访问的结果删除，这样就可简单地管理textContent属性
-            let xhr = new XMLHttpRequest() ;
-			          xhr.onreadystatechange = callback ; //注意：XMLHttpRequest的实例不支持 addEventListener方法
-               //此处设定同步代码的开始时间
-                xhr.open('GET', url, true); //true 设定为异步请求，false为同步请求
-                xhr.send(''); //顺序调用XMLHttpRequest对象实例的open、send 二步方法，正式启动http请求
-    
-	//callback函数是定义在模型内的httpRequest内部的函数，语法上看仅供httpRequest父函数使用
-	//xhr实例对象的onreadystatechange事件属性，是系统对接我们的异步函数的句柄，请顾名思义，on ready state change，对接http协议的底层通信标记。
-    //1.在每次htttp请求中，onreadystatechange事件一般会顺序触发4次，系统同时返回相应的xhr.readyState值,我们的代码则可通过readyState值得到当前异步访问的进展。
-    //2.http请求成功的条件有二个，一是xhr.readyState为4，并且xhr.status为200。
-	//3.由于网络或其他不可预测的问题，会造成请求失败，表现为：xhr.readyState停留在1、2、3则代表请求失败，xhr.readyState为4但xhr.status不为200则代表无法获取请求内容（即请求成功也没有用）。             
-				function callback(){ 
-					        if (this.readyState === 1 ){
-                    console.log("Request begin...");
-                   return ;
-                   } 
-                  if (this.readyState === 2 ){
-                    console.log("loading...");
-                    return ;
-                  } 
-                  if (this.readyState === 3 ){
-                    console.log("Http interact... ");
-                    return ;
-                  } 
-                if (this.readyState === 4 ){
-                    console.log("Request  is complete .");
-                   if (xhr.status !== 200){
-                      console.log("HttpServer refused ! ");
-                      return ;
-                   }else{
-                       httpLoader.textContent = this.responseText; 
-                   } // success of 
-                }//readyState === 4
-       }//end of callback	     
+
+
+    img#bgimage {
+      position: absolute;
+      opacity: 0.3;
+
+    }
+
+    ul {
+      color: rgb(100, 250, 10);
+      font-size: 1.5em;
+      font-family: "Consolas"
+    }
+
+    ul>li {
+      text-indent: 0.5em;
+      margin-left: 3em;
+      line-height: 1.5em;
+    }
+  </style>
+  <script type="text/javascript">
+    /*** 本程序为testHttp ，将访问与本文件同级，即txt文件夹下的文本文件
+     通过建立httpLoader模型，学习利用window的XMLHttpRequest对象，实现任意文本文件的访问
+     本代码本质上利用http协议进行服务器通信，因此运行环境须有客户端和服务器支撑，不能在本地运行，没有服务器支撑的可以使用本地操作系统虚拟的HTTP服务器。
+     ***/
+    var httpLoader = {
+      textContent: '',
+      textLines: [],
+      request: function (url) {
+        this.textContent = '';
+        // 每次开始http请求前，必须将本对象上次访问的结果删除，这样就可简单地管理textContent属性
+        let xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = callback; //注意：XMLHttpRequest的实例不支持 addEventListener方法
+        //此处设定同步代码的开始时间
+        xhr.open('GET', url, true); //true 设定为异步请求，false为同步请求
+        xhr.send(''); //顺序调用XMLHttpRequest对象实例的open、send 二步方法，正式启动http请求
+
+        //callback函数是定义在模型内的httpRequest内部的函数，语法上看仅供httpRequest父函数使用
+        //xhr实例对象的onreadystatechange事件属性，是系统对接我们的异步函数的句柄，请顾名思义，on ready state change，对接http协议的底层通信标记。
+        //1.在每次htttp请求中，onreadystatechange事件一般会顺序触发4次，系统同时返回相应的xhr.readyState值,我们的代码则可通过readyState值得到当前异步访问的进展。
+        //2.http请求成功的条件有二个，一是xhr.readyState为4，并且xhr.status为200。
+        //3.由于网络或其他不可预测的问题，会造成请求失败，表现为：xhr.readyState停留在1、2、3则代表请求失败，xhr.readyState为4但xhr.status不为200则代表无法获取请求内容（即请求成功也没有用）。             
+        function callback() {
+          if (this.readyState === 1) {
+            console.log("Request begin...");
+            return;
+          }
+          if (this.readyState === 2) {
+            console.log("loading...");
+            return;
+          }
+          if (this.readyState === 3) {
+            console.log("Http interact... ");
+            return;
+          }
+          if (this.readyState === 4) {
+            console.log("Request  is complete .");
+            if (xhr.status !== 200) {
+              console.log("HttpServer refused ! ");
+              return;
+            } else {
+              httpLoader.textContent = this.responseText;
+            } // success of 
+          }//readyState === 4
+        }//end of callback	     
       },//end request method
-	 } ; //End httpLoader
-	 
-//用httpLoader模型读入文本文件，用print函数实现输出
-httpLoader.request('txt/paper.txt') ; //同步代码启动http请求
-   setTimeout(function(){  //异步代码处理http访问获取的数据
-      if(httpLoader.textContent.length > 1 ){
-         httpLoader.textLines = httpLoader.textContent.split("\r"); 
-         for(let line of httpLoader.textLines ) {
-           print(line ) ;
-         }       
-      }else{
-         print("文本获取失败，请查查原因！") ;
+    }; //End httpLoader
+
+    //用httpLoader模型读入文本文件，用print函数实现输出
+    httpLoader.request('txt/paper.txt'); //同步代码启动http请求
+    setTimeout(function () {  //异步代码处理http访问获取的数据
+      if (httpLoader.textContent.length > 1) {
+        httpLoader.textLines = httpLoader.textContent.split("\r");
+        for (let line of httpLoader.textLines) {
+          print(line);
+        }
+      } else {
+        print("文本获取失败，请查查原因！");
       }
-   },1000);
+    }, 1000);
 
 
-	 var timer = { 
-	         clock : [] ,
-			 begin : function(msg){
-			          let beginTime = new Date() - 0 ;
-					  let beginLable = msg ;
-					  this.clock.push( {beginTime , beginLable } ) ;
-			  }, // timer.begin
-			 end :  function(msg){
-			         let endTime = new Date() - 0 ;
-					 let clock  ;
-					 let length = this.clock.length ;
-					 for (let i = 0 ; i < length ; i++ ){ 
-					 //将找到的时钟对象，该时钟需要结束，下面设计一个交换算法，将其从timer.clock数组中删除。
-						 if (this.clock[i].beginLable === msg){
-							 clock = this.clock[i] ;
-							 this.clock[i] = this.clock[length-1] ;
-							 this.clock.pop();
-                             return endTime - clock.beginTime ;
-							}
-					 }
+    var timer = {
+      clock: [],
+      begin: function (msg) {
+        let beginTime = new Date() - 0;
+        let beginLable = msg;
+        this.clock.push({ beginTime, beginLable });
+      }, // timer.begin
+      end: function (msg) {
+        let endTime = new Date() - 0;
+        let clock;
+        let length = this.clock.length;
+        for (let i = 0; i < length; i++) {
+          //将找到的时钟对象，该时钟需要结束，下面设计一个交换算法，将其从timer.clock数组中删除。
+          if (this.clock[i].beginLable === msg) {
+            clock = this.clock[i];
+            this.clock[i] = this.clock[length - 1];
+            this.clock.pop();
+            return endTime - clock.beginTime;
+          }
+        }
 
-					 throw("你错误地使用了timer.end方法使，请查看参数："+ msg );
-					 
-			  }, // timer.end 
-			} ;
+        throw ("你错误地使用了timer.end方法使，请查看参数：" + msg);
 
-		 //window对象开始读取页面所需的资源文件
-		 timer.begin('windowLoad') ; 
-		 
-		 window.addEventListener('load',function(){
-           let time =  timer.end('windowLoad') ;
-		   print("APP加载完成所有资源文件，共使用 " + time + " ms!") ;
-		 }) ;
+      }, // timer.end 
+    };
 
-		
+    //window对象开始读取页面所需的资源文件
+    timer.begin('windowLoad');
+
+    window.addEventListener('load', function () {
+      let time = timer.end('windowLoad');
+      print("APP加载完成所有资源文件，共使用 " + time + " ms!");
+    });
+
+    httpLoader.request('txt/cet6.txt'); //同步代码启动http请求
+    setTimeout(function () {  //异步代码处理http访问获取的数据
+      if (httpLoader.textContent.length > 1) {
+        httpLoader.textLines = httpLoader.textContent.split("\n");
+        for (let line of httpLoader.textLines) {
+          print(line);
+        }
+      }
+      else {
+        print("文本获取失败，请查查原因！");
+      }
+    }, 2000);
 	//-->
-	</script>
-  </head>
-  <body>
-   <div id="app">
-    <img id="bgimage" src="lesson/back.jpg" >
-	<ul id="ul">
-		
-	</ul>
-   </div>
-   <script type="text/javascript">
-    $('bgimage').style.width = window.innerWidth + 'px' ;
-   print("本程序演示异步技术的代码最高心法，建议用于Web Application方向的毕业设计。代码对接底层的http对象实现对同域文本文件的内容加载。本例输出我与学生在交流毕业设计/论文的对话文本！");
-   
-   	
+  </script>
+</head>
 
+<body>
+  <div id="app">
+    <img id="bgimage" src="lesson/back.jpg">
+    <ul id="ul">
 
-     
-   /*************************************************
-     writen by masterLijh
-    2024 3 18
-   1、print函数用来在App页面上生成列表li内容，它假设body标签中有ol元素
-   2、调用函数print(str)会用动画的方式把str逐个字符打印出来
-   3、该函数利用了函数式编程方法，把函数看作对象，建立和利用print.str属性
-   
-     ******************/
-   	function print(str){
-   	  if (print.str){ //如果存在print.str则说明print函数正在异步输出中
-   		  setTimeout(()=>print(str) , 1000) ;
-   		  return ;
-   	  }
-   	  print.str= str ;
-   	  let liDom = document.createElement('li') ;
-   	  let olDom = $("ul");
-   	  
-   	  liDom.textContent = print.str[0] ; 
-   	  window.requestAnimationFrame(oneChar);
-   	   function oneChar(){
-   		 if(print.str.length > 1){
-   	      liDom.textContent += print.str[1] ;
-          print.str = print.str.slice(1) ;
-   		  window.requestAnimationFrame(oneChar);
-   		  }else{
-   		   print.str = undefined ;
-   		  }
-   	   }
-   	   
-   	  olDom.appendChild(liDom);
-   	} // print(str)
+    </ul>
+  </div>
+  <script type="text/javascript">
+    $('bgimage').style.width = window.innerWidth + 'px';
+    print("本程序演示异步技术的代码最高心法，建议用于Web Application方向的毕业设计。代码对接底层的http对象实现对同域文本文件的内容加载。本例输出我与学生在交流毕业设计/论文的对话文本！");
+
+    /*************************************************
+      writen by masterLijh
+     2024 3 18
+    1、print函数用来在App页面上生成列表li内容，它假设body标签中有ol元素
+    2、调用函数print(str)会用动画的方式把str逐个字符打印出来
+    3、该函数利用了函数式编程方法，把函数看作对象，建立和利用print.str属性
     
-   
-   
-   	function $(eleId){
-     if (typeof eleId !== 'string'){
-   	   throw("$函数调用实参错误，行参必须是字符串！");
-   	   return 
-     }
-      return document.getElementById(eleId) ;
+      ******************/
+    function print(str) {
+      if (print.str) { //如果存在print.str则说明print函数正在异步输出中
+        setTimeout(() => print(str), 1000);
+        return;
+      }
+      print.str = str;
+      let liDom = document.createElement('li');
+      let olDom = $("ul");
+
+      liDom.textContent = print.str[0];
+      window.requestAnimationFrame(oneChar);
+      function oneChar() {
+        if (print.str.length > 1) {
+          liDom.textContent += print.str[1];
+          print.str = print.str.slice(1);
+          window.requestAnimationFrame(oneChar);
+        } else {
+          print.str = undefined;
+        }
+      }
+
+      olDom.appendChild(liDom);
+    } // print(str)
+
+    function $(eleId) {
+      if (typeof eleId !== 'string') {
+        throw ("$函数调用实参错误，行参必须是字符串！");
+        return
+      }
+      return document.getElementById(eleId);
     }
-   
-  
-   //
-   </script> 
-  </body>
- </html>
+  </script>
+</body>
+
+</html>

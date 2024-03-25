@@ -1,300 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
 
-<!doctype html>
-<html  lang="zh">
- <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
 
-  <title>进一步深刻理解HTML5本技术的MVC设计模式，规范APP代码组织中的CSS动画和JS行为的代码分工</title>
-  
-   <style>
-    * {
-      padding: 0 ;
-	  margin: 0 ;
-    }
-    body, html {
-      height: 100%;
-     }
+	<title>进一步深刻理解HTML5本技术的MVC设计模式，规范APP代码组织中的CSS动画和JS行为的代码分工</title>
 
-    body {
-      margin: 0;
-      padding: 0;
-      font-family:Arial, Sans-Serif;
-      background-color: black ; 
-    }
+	<style>
+		* {
+			padding: 0;
+			margin: 0;
+		}
 
-     #app {
-      position: relative ;
-     }
-	 #app>div.charSnow { 
-	  position: absolute ;
-	  opacity: 0.1 ;
-	  font-size: 250px ;
-	  color: white ;
-	  cursor: pointer ;
-	  border: 1px solid white ;
-	  border-radius: 50% ;
-	  padding-left  : 2px ;
-	  padding-right  : 2px ;
-	  /**上面属性将成为本对象CSS动画的起点**/
-	  transition: all 1.2s ease-out ;
- 	 }
-   
- 
+		body,
+		html {
+			height: 100%;
+		}
 
-     img#bgimage {
-      position: absolute ;
-	  opacity: 0.3 ;
-        
-    }
-	 img#bgimage.change {
-        transition: all 0.5s ease-out ; 
-       }
+		body {
+			margin: 0;
+			padding: 0;
+			font-family: Arial, Sans-Serif;
+			background-color: black;
+		}
+
+		#app {
+			position: relative;
+		}
+
+		#app>div.charSnow {
+			position: absolute;
+			opacity: 0.1;
+			font-size: 250px;
+			color: white;
+			cursor: pointer;
+			border: 1px solid white;
+			border-radius: 50%;
+			padding-left: 2px;
+			padding-right: 2px;
+			/**上面属性将成为本对象CSS动画的起点**/
+			transition: all 1.2s ease-out;
+		}
+
+		img#bgimage {
+			position: absolute;
+			opacity: 0.3;
+
+		}
+
+		img#bgimage.change {
+			transition: all 0.5s ease-out;
+		}
 
 
+		ol {
+			color: rgb(150, 250, 100);
+			font-size: 1.5em;
+			font-family: "Consolas"
+		}
 
-  
-	ol{color:rgb(150,250,100);
-	  font-size:1.5em;
-	  font-family:"Consolas"}
-	ol>li{
-	  text-indent: 0.5em ;
-	  margin-left: 3em ;
-	}
+		ol>li {
+			text-indent: 0.5em;
+			margin-left: 3em;
+		}
 	</style>
 	<script type="text/javascript">
-	<!--
-//设计一个毫秒计时器模型，该模型可以同时并行记录多个事件的发生经历的时间，开发者可以用字符串（msg）作为时钟的唯一标识，进行操作。原理简述如下：当timer.begin(msg)运行开启计时，timer.clock记录一个时钟对象，而timer.end(msg)用于结束该标识的计时，返回毫秒级别的时间差，同时把相应的时钟对象删除。
-//注意：当错误地使用timer计时器时，比如end方法的msg写错，后台会抛出（throw）参数错误这类严重的警告，当发生此类错误时，作为开发者必须查看调用timer.begin和timer.end代码的msg，此时的timer不能正常来测算同步代码的时间。而不会影星timer检测异步代码的执行时间！
-	 var timer = { 
-	         clock : [] ,
-			 begin : function(msg){
-			          let beginTime = new Date() - 0 ;
-					  let beginLable = msg ;
-					  this.clock.push( {beginTime , beginLable } ) ;
-			  }, // timer.begin
-			 end :  function(msg){
-			         let endTime = new Date() - 0 ;
-					 let clock  ;
-					 let length = this.clock.length ;
-					 for (let i = 0 ; i < length ; i++ ){ 
-					 //将找到的时钟对象，该时钟需要结束，下面设计一个交换算法，将其从timer.clock数组中删除。
-						 if (this.clock[i].beginLable === msg){
-							 clock = this.clock[i] ;
-							 this.clock[i] = this.clock[length-1] ;
-							 this.clock.pop();
-                             return endTime - clock.beginTime ;
-							}
-					 }
+		//设计一个毫秒计时器模型，该模型可以同时并行记录多个事件的发生经历的时间，开发者可以用字符串（msg）作为时钟的唯一标识，进行操作。原理简述如下：当timer.begin(msg)运行开启计时，timer.clock记录一个时钟对象，而timer.end(msg)用于结束该标识的计时，返回毫秒级别的时间差，同时把相应的时钟对象删除。
+		//注意：当错误地使用timer计时器时，比如end方法的msg写错，后台会抛出（throw）参数错误这类严重的警告，当发生此类错误时，作为开发者必须查看调用timer.begin和timer.end代码的msg，此时的timer不能正常来测算同步代码的时间。而不会影星timer检测异步代码的执行时间！
+		var timer = {
+			clock: [],
+			begin: function (msg) {
+				let beginTime = new Date() - 0;
+				let beginLable = msg;
+				this.clock.push({ beginTime, beginLable });
+			}, // timer.begin
+			end: function (msg) {
+				let endTime = new Date() - 0;
+				let clock;
+				let length = this.clock.length;
+				for (let i = 0; i < length; i++) {
+					//将找到的时钟对象，该时钟需要结束，下面设计一个交换算法，将其从timer.clock数组中删除。
+					if (this.clock[i].beginLable === msg) {
+						clock = this.clock[i];
+						this.clock[i] = this.clock[length - 1];
+						this.clock.pop();
+						return endTime - clock.beginTime;
+					}
+				}
 
-					 throw("你错误地使用了timer.end方法使，请查看参数："+ msg );
-					 
-			  }, // timer.end 
-			} ;
+				throw ("你错误地使用了timer.end方法使，请查看参数：" + msg);
 
-		 //window对象开始读取页面所需的资源文件
-		 timer.begin('windowLoad') ; 
-		 
-		 window.addEventListener('load',function(){
-           let time =  timer.end('windowLoad') ;
-		   print("APP加载完成所有资源文件，共使用 " + time + " ms!") ;
-		 }) ;
+			}, // timer.end 
+		};
+
+		//window对象开始读取页面所需的资源文件
+		timer.begin('windowLoad');
+
+		window.addEventListener('load', function () {
+			let time = timer.end('windowLoad');
+			print("APP加载完成所有资源文件，共使用 " + time + " ms!");
+		});
 
 
-	//timer.end('wrong parameter') ; //故意写错，用来测试计时器模型的参数。
-{ 
-    timer.begin("A test for sync code");
-	for (let i=0; i < 1e5 ; i++){
-		let j = i*i ;
-	}
-    let t = timer.end("A test for sync code");
-	console.log("本机本执行10万次平方运算的时间：" + t +" ms.");
-}
-    timer.begin("body元素内代码运行的时间");
+		//timer.end('wrong parameter') ; //故意写错，用来测试计时器模型的参数。
+		{
+			timer.begin("A test for sync code");
+			for (let i = 0; i < 1e5; i++) {
+				let j = i * i;
+			}
+			let t = timer.end("A test for sync code");
+			console.log("本机本执行10万次平方运算的时间：" + t + " ms.");
+		}
+		timer.begin("body元素内代码运行的时间");
 	//-->
 	</script>
-  </head>
-  <body>
-   <div id="app">
-    <img id="bgimage" src="lesson/CS.jpg" >
-	<ol id="ol">
-		
-	</ol>
-   </div>
-   <script type="text/javascript">
-   print("本程序用异步代码实现了文字动画。主要是创作性地利用函数的对象特性，让print函数能智能判断当前的异步输出的完成情况，并结合requestAnimationFrame这个强大API实现动画，每个字符的细节动画输出和整个字符串的整体有序把控到位！");
-   
-   	
-    const backImgs = [] ; //全局变量
-    {   
-   	const booksPage = ['CS.jpg' , 'nutrition.jpg' , 'webProgramming.jpg' ] ;
-   
-   	for (let book of booksPage ){
-   		timer.begin(book) ;
-   		let img = new Image() ;
-   		img.src = "lesson/" + book ;
-   		img.id = "bgimage" ;
-   		img.addEventListener('load',function(){
-   		    print("图像:" + book + "完成load事件要 " + timer.end(book) +'ms !');
-   		});
-   		backImgs.push(img) ;
-   	}
-    }
+</head>
 
-  var mouse = {
-	           isDown: false ,
-			   x : 0 ,
-			   deltaX : 0 ,
-			   totalX : 0 ,
-			   bookId : 0 ,
-			   books : backImgs ,
-			    } ;
-	document.body.addEventListener("mousedown", function(ev){
-   	
-	      ev.preventDefault() ;
-	      mouse.isDown = true ;
-		  mouse.x = ev.pageX ;
-		  $('bgimage').style.opacity =  '0.5' ;
-		  $('bgimage').className = '' ;
-   	}) ;
-	document.body.addEventListener("mousemove", function(ev){
-		if (mouse.isDown){
-          mouse.deltaX = ev.pageX - mouse.x ;
-	      if (mouse.deltaX > 10){
-			  mouse.deltaX = 0 ;
-			  mouse.x = ev.pageX ;
-           $('bgimage').style.left = $('bgimage').offsetLeft + 8 + 'px' ;
-		      mouse.totalX += 1 ;
-		  }
-		  if (mouse.deltaX < -10){
-			  mouse.deltaX = 0 ;
-			  mouse.x = ev.pageX ;
-           $('bgimage').style.left = $('bgimage').offsetLeft - 8 + 'px' ;
-		     mouse.totalX -= 1 ;
-		  }
-		  
+<body>
+	<div id="app">
+		<img id="bgimage" src="lesson/CS.jpg">
+		<ol id="ol">
+
+		</ol>
+	</div>
+	<script type="text/javascript">
+		print("本程序用异步代码实现了文字动画。主要是创作性地利用函数的对象特性，让print函数能智能判断当前的异步输出的完成情况，并结合requestAnimationFrame这个强大API实现动画，每个字符的细节动画输出和整个字符串的整体有序把控到位！");
+		const backImgs = []; //全局变量
+		{
+			const booksPage = ['CS.jpg', 'nutrition.jpg', 'webProgramming.jpg'];
+			for (let book of booksPage) {
+				timer.begin(book);
+				let img = new Image();
+				img.src = "lesson/" + book;
+				img.id = "bgimage";
+				img.addEventListener('load', function () {
+					print("图像:" + book + "完成load事件要 " + timer.end(book) + 'ms !');
+				});
+				backImgs.push(img);
+			}
 		}
-   	}) ;
-	document.body.addEventListener("mouseup", function(ev){
-		mouse.isDown = false ;
-		mouse.x = 0 ;
-		if (mouse.bookId === mouse.books.length -1  ){
-          mouse.bookId = 0 ;
-		} else{
-		  mouse.bookId ++ ;
-		 }
 
-       
-		let x = $("bgimage").offsetLeft ;
-		if (mouse.totalX > 10)  {
-         $("app").replaceChild(mouse.books[mouse.bookId],$("bgimage"));
-         mouse.totalX = 0 ;
-        }
-		$("bgimage").style.left = x + 'px' ;
-		$('bgimage').className = 'change' ; 
+		var mouse = {
+			isDown: false,
+			x: 0,
+			deltaX: 0,
+			totalX: 0,
+			bookId: 0,
+			books: backImgs,
+		};
+		document.body.addEventListener("mousedown", function (ev) {
 
-		setTimeout(function(){ 
-		  $('bgimage').style.left =  '0px' ;
-		  $('bgimage').style.opacity =  '0.3' ;
-		  },200);
-	}) ;
-  
+			ev.preventDefault();
+			mouse.isDown = true;
+			mouse.x = ev.pageX;
+			$('bgimage').style.opacity = '0.5';
+			$('bgimage').className = '';
+		});
+		document.body.addEventListener("mousemove", function (ev) {
+			if (mouse.isDown) {
+				mouse.deltaX = ev.pageX - mouse.x;
+				if (mouse.deltaX > 10) {
+					mouse.deltaX = 0;
+					mouse.x = ev.pageX;
+					$('bgimage').style.left = $('bgimage').offsetLeft + 8 + 'px';
+					mouse.totalX += 1;
+				}
+				if (mouse.deltaX < -10) {
+					mouse.deltaX = 0;
+					mouse.x = ev.pageX;
+					$('bgimage').style.left = $('bgimage').offsetLeft - 8 + 'px';
+					mouse.totalX -= 1;
+				}
 
-    window.document.body.addEventListener('keydown',function(ev){
-   		    ev.preventDefault() ;
-            timer.begin('key'+ev.key) ;
-   			 }) ;
-   	window.document.body.addEventListener('keyup',function(ev){
-   		  let time =  timer.end('key'+ev.key) ;
-   		  print("您刚才敲： "+ ev.key  + "键，用了" + time +  " ms!") ;
-   		 }) ;
-   
-   	print("Hello , this App will check the preformace of you computing system! ") ;
-   	print("I'm very good at programmming! ") ;
-   	print("Recursive function can do a lot of pretty good things! ") ;
-     //下面为鼠标增设一个鼠标事件处理程序，结合DOM技术和汉字的API编码转换，实现满屏汉字的随意点缀
-     { //路过的代码块
-   let li = '李' ;
-   let hong = '宏' ;
-   let begin = hong.charCodeAt() ;
-   let end = li.charCodeAt() ;
-   let lihong = "" ; // lihong将存放 unicode 字符编码中， 李 和 宏 之间的三千多个汉字编码
-    for(let i=begin ; i <= end ; i++){
-      lihong += String.fromCharCode(i) ;
-    }
-   	document.body.lihong = lihong ; //离开本代码快，lihong变量不会存在，因此我们姑且把这个字符串存放在body对象内
+			}
+		});
+		document.body.addEventListener("mouseup", function (ev) {
+			mouse.isDown = false;
+			mouse.x = 0;
+			if (mouse.bookId === mouse.books.length - 1) {
+				mouse.bookId = 0;
+			} else {
+				mouse.bookId++;
+			}
 
-	//为APP提供点击事件的处理，主要实现屏幕外飞来的汉字落在鼠标中央。
-    document.body.addEventListener('click',function(ev){
-   	
-   		  timer.begin('mouse');
-   	      let arr = this.lihong ;
-     	  let div = document.createElement("div");
-   		      div.textContent = arr[arr.length - 1] ;
-   			  div.className = "charSnow" ; //这条与CSS样式的设计模式，是实现软件设计师和工程师任务分工的关键
-			 //下面实现触发CSS动画效果的程序设计，要点是让CSS引擎理解DOM动画的对象属性起点和终点
-			 //同步代码太快，这样设定的DOM属性，将成为CSS动画的起点
-			  div.style.left = parseInt(document.body.clientWidth * Math.random()) + 'px';
-              div.style.top = '-100px' ;
-   			 //同步代码太慢，这样设定的DOM属性，会成为CSS动画的终点 
-			  setTimeout(function(){
-   			   div.style.fontSize = '16px' ;
-               div.style.opacity = '0.9' ;
-   			   div.style.left = ev.pageX - 8 + 'px';
-               div.style.top = ev.pageY  - 8 + 'px';
-   			  },100); // 100ms后触发动画，这对计算机属于极慢事件，而对人类而言，则是非常流畅的
-   			  
-   			$('app').appendChild(div) ; //上一版有bug误把爷爷当作了父亲，导致动态div定位问题，在此纠正
-   		 this.lihong = arr.slice(0, arr.length - 1) ;
-   		console.log('本次DOM渲染代码运行时间：' + timer.end('mouse')+ 'ms!');
-   	
-   	}) ; // body.addEventListener('mousedown'...)
-     }//路过的代码块
-   
-     /*************************************************
-     writen by masterLijh
-    2024 3 18
-   1、print函数用来在App页面上生成列表li内容，它假设body标签中有ol元素
-   2、调用函数print(str)会用动画的方式把str逐个字符打印出来
-   3、该函数利用了函数式编程方法，把函数看作对象，建立和利用print.str属性
-   
-     ******************/
-   	function print(str){
-   	  if (print.str){ //如果存在print.str则说明print函数正在异步输出中
-   		  setTimeout(()=>print(str) , 1000) ;
-   		  return ;
-   	  }
-   	  print.str= str ;
-   	  let liDom = document.createElement('li') ;
-   	  let olDom = $("ol");
-   	  
-   	  liDom.textContent = print.str[0] ; 
-   	  window.requestAnimationFrame(oneChar);
-   	   function oneChar(){
-   		 if(print.str.length > 1){
-   	      liDom.textContent += print.str[1] ;
-          print.str = print.str.slice(1) ;
-   		  window.requestAnimationFrame(oneChar);
-   		  }else{
-   		   print.str = undefined ;
-   		  }
-   	   }
-   	   
-   	  olDom.appendChild(liDom);
-   	} // print(str)
-    
-   
-   
-   	function $(eleId){
-     if (typeof eleId !== 'string'){
-   	   throw("$函数调用实参错误，行参必须是字符串！");
-   	   return 
-     }
-      return document.getElementById(eleId) ;
-    }
-   
-    console.log('body元素内的同步代码运行的时间:' + timer.end("body元素内代码运行的时间") +'ms!');	
+
+			let x = $("bgimage").offsetLeft;
+			if (mouse.totalX > 10) {
+				$("app").replaceChild(mouse.books[mouse.bookId], $("bgimage"));
+				mouse.totalX = 0;
+			}
+			$("bgimage").style.left = x + 'px';
+			$('bgimage').className = 'change';
+
+			setTimeout(function () {
+				$('bgimage').style.left = '0px';
+				$('bgimage').style.opacity = '0.3';
+			}, 200);
+		});
+		window.document.body.addEventListener('keydown', function (ev) {
+			ev.preventDefault();
+			timer.begin('key' + ev.key);
+		});
+		window.document.body.addEventListener('keyup', function (ev) {
+			let time = timer.end('key' + ev.key);
+			print("您刚才敲： " + ev.key + "键，用了" + time + " ms!");
+		});
+		print("Hello , this App will check the preformace of you computing system! ");
+		print("I'm very good at programmming! ");
+		print("Recursive function can do a lot of pretty good things! ");
+		//下面为鼠标增设一个鼠标事件处理程序，结合DOM技术和汉字的API编码转换，实现满屏汉字的随意点缀
+		{ //路过的代码块
+			let li = '李';
+			let hong = '宏';
+			let begin = hong.charCodeAt();
+			let end = li.charCodeAt();
+			let lihong = ""; // lihong将存放 unicode 字符编码中， 李 和 宏 之间的三千多个汉字编码
+			for (let i = begin; i <= end; i++) {
+				lihong += String.fromCharCode(i);
+			}
+			document.body.lihong = lihong; //离开本代码快，lihong变量不会存在，因此我们姑且把这个字符串存放在body对象内
+
+			//为APP提供点击事件的处理，主要实现屏幕外飞来的汉字落在鼠标中央。
+			document.body.addEventListener('click', function (ev) {
+
+				timer.begin('mouse');
+				let arr = this.lihong;
+				let div = document.createElement("div");
+				div.textContent = arr[arr.length - 1];
+				div.className = "charSnow"; //这条与CSS样式的设计模式，是实现软件设计师和工程师任务分工的关键
+				//下面实现触发CSS动画效果的程序设计，要点是让CSS引擎理解DOM动画的对象属性起点和终点
+				//同步代码太快，这样设定的DOM属性，将成为CSS动画的起点
+				div.style.left = parseInt(document.body.clientWidth * Math.random()) + 'px';
+				div.style.top = '-100px';
+				//同步代码太慢，这样设定的DOM属性，会成为CSS动画的终点 
+				setTimeout(function () {
+					div.style.fontSize = '16px';
+					div.style.opacity = '0.9';
+					div.style.left = ev.pageX - 8 + 'px';
+					div.style.top = ev.pageY - 8 + 'px';
+				}, 100); // 100ms后触发动画，这对计算机属于极慢事件，而对人类而言，则是非常流畅的
+
+				$('app').appendChild(div); //上一版有bug误把爷爷当作了父亲，导致动态div定位问题，在此纠正
+				this.lihong = arr.slice(0, arr.length - 1);
+				console.log('本次DOM渲染代码运行时间：' + timer.end('mouse') + 'ms!');
+
+			}); // body.addEventListener('mousedown'...)
+		}//路过的代码块
+
+		/*************************************************
+		writen by masterLijh
+	   2024 3 18
+	  1、print函数用来在App页面上生成列表li内容，它假设body标签中有ol元素
+	  2、调用函数print(str)会用动画的方式把str逐个字符打印出来
+	  3、该函数利用了函数式编程方法，把函数看作对象，建立和利用print.str属性
+	  
+		******************/
+		function print(str) {
+			if (print.str) { //如果存在print.str则说明print函数正在异步输出中
+				setTimeout(() => print(str), 1000);
+				return;
+			}
+			print.str = str;
+			let liDom = document.createElement('li');
+			let olDom = $("ol");
+
+			liDom.textContent = print.str[0];
+			window.requestAnimationFrame(oneChar);
+			function oneChar() {
+				if (print.str.length > 1) {
+					liDom.textContent += print.str[1];
+					print.str = print.str.slice(1);
+					window.requestAnimationFrame(oneChar);
+				} else {
+					print.str = undefined;
+				}
+			}
+
+			olDom.appendChild(liDom);
+		} // print(str)
+
+		function $(eleId) {
+			if (typeof eleId !== 'string') {
+				throw ("$函数调用实参错误，行参必须是字符串！");
+				return
+			}
+			return document.getElementById(eleId);
+		}
+
+		console.log('body元素内的同步代码运行的时间:' + timer.end("body元素内代码运行的时间") + 'ms!');
    //
-   </script> 
-  </body>
- </html>
+	</script>
+</body>
+
+</html>
